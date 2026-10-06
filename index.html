@@ -1,0 +1,61 @@
+<div id="fx-app">
+<style>
+#fx-app{font-family:system-ui,sans-serif;color:#eef6ff;background:#0b1628;padding:26px;border-radius:18px;max-width:1000px;margin:auto;box-sizing:border-box;min-height:680px}
+#fx-app *{box-sizing:border-box}#fx-app header{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}
+#fx-app .eyebrow{color:#7dd3fc;letter-spacing:2px;font-size:12px}#fx-app h2{font-size:28px;margin:5px 0}#fx-app .muted{color:#a9bad1;font-size:14px}
+#fx-app .badge{background:#483311;color:#ffe09b;border:1px solid #7b5a20;padding:8px 12px;border-radius:30px;font-size:12px}
+#fx-app .summary{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;background:#15263d;border:1px solid #30445e;padding:20px;margin:22px 0;border-radius:12px}
+#fx-app .amount{font-size:32px;font-weight:750;color:#75efb8;font-variant-numeric:tabular-nums}#fx-app button{cursor:pointer;font:inherit;border-radius:9px;padding:12px 18px;border:0;background:#77efb8;color:#08261b;font-weight:650}#fx-app button:hover{filter:brightness(1.08)}#fx-app button:focus-visible,#fx-app input:focus-visible{outline:3px solid #38bdf8;outline-offset:3px}#fx-app button:disabled{opacity:.6;cursor:wait}
+#fx-app .table-wrap{overflow-x:auto}#fx-app table{border-collapse:collapse;width:100%;min-width:500px}#fx-app th{background:#182b45;text-align:left;font-size:12px;color:#a9c5e5;padding:14px 12px}#fx-app td{padding:13px 12px;border-bottom:1px solid #233752;font-size:14px}#fx-app .num{text-align:right;font-variant-numeric:tabular-nums}#fx-app .result{color:#75efb8;font-size:19px;font-weight:700}#fx-app .code{font-weight:750;color:white;font-size:16px}#fx-app footer{font-size:12px;line-height:1.8;color:#a9bad1;margin-top:20px}#fx-app .status{margin-top:10px;min-height:22px;font-size:13px;color:#83d5ff}
+#fx-app dialog{color:#14243a;background:#fff;border:0;border-radius:18px;padding:26px;width:min(440px,90vw);box-shadow:0 25px 70px #0007}#fx-app dialog::backdrop{background:#020b19b8}#fx-app dialog h3{margin:0 0 8px;font-size:23px}#fx-app dialog p{color:#53657c;line-height:1.6}#fx-app label{display:block;margin:20px 0 8px;font-weight:650}#fx-app input{width:100%;border:1px solid #a9b8c9;border-radius:8px;padding:13px;font-size:22px;color:#16283c;background:white}#fx-app .actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}#fx-app .secondary{background:#e5ecf3;color:#29435e}#fx-app .error{color:#b42318;min-height:22px;font-size:13px;margin-top:8px}
+@media(max-width:600px){#fx-app{padding:16px}#fx-app h2{font-size:23px}#fx-app .amount{font-size:27px}}
+</style>
+<header><div><div class="eyebrow">PYTHON • STUDENT EXCHANGE LAB</div><h2>กระดานแลกเปลี่ยนเงินตรา</h2><div class="muted">เงินบาท → เงินต่างประเทศ · โปรเจกต์งานคู่</div></div><span class="badge">อัตราสมมติสำหรับการเรียน</span></header>
+<section class="summary"><div><div class="muted">จำนวนเงินต้นทาง (THB)</div><div class="amount" id="fx-thb">ยังไม่ได้กรอก</div></div><button type="button" id="fx-open">＋ กรอกจำนวนเงินบาท</button></section>
+<div class="table-wrap"><table><thead><tr><th>สกุลเงิน</th><th>ประเทศ / กลุ่มประเทศ</th><th class="num">อัตราขายสมมติ<br>บาท / 1 หน่วย</th><th class="num">จำนวนเงินที่ได้รับ</th></tr></thead><tbody id="fx-rows"></tbody></table></div>
+<div class="status" id="fx-status" role="status" aria-live="polite">กรอกเงินบาทเพื่อเปรียบเทียบยอดในแต่ละสกุล</div>
+<footer>DEMO • ไม่ใช่อัตราแลกเปลี่ยนปัจจุบันหรือราคาเสนอซื้อขายจริง • ไม่รวมค่าธรรมเนียม<br>แต่ละแถวคือทางเลือกใช้เงินบาทก้อนเดียวกันแลกเป็นสกุลนั้น ไม่ใช่ยอดที่จะได้รับพร้อมกันทุกสกุล<br>สูตร: เงินต่างประเทศ = เงินบาท ÷ อัตราบาทต่อ 1 หน่วย · แสดงยอดปัดลงตามทศนิยมของสกุลเงิน ไม่พิจารณาชนิดธนบัตร</footer>
+<dialog id="fx-dialog" aria-labelledby="fx-dialog-title"><form id="fx-form" novalidate>
+<h3 id="fx-dialog-title">กรอกจำนวนเงินบาท</h3><p>Python จะคำนวณทุกสกุล แล้วแสดงผลบนกระดานเดิม</p>
+<label for="fx-input">จำนวนเงิน (บาท)</label><input id="fx-input" type="number" inputmode="decimal" min="0" max="1000000000" step="0.01" placeholder="เช่น 1000.00" required>
+<div class="error" id="fx-error" role="alert"></div><div class="actions"><button class="secondary" type="button" id="fx-cancel">ยกเลิก</button><button type="submit" id="fx-submit">แปลงค่าเงิน</button></div></form></dialog>
+<script>
+(() => {
+ const app=document.getElementById('fx-app');
+ const q=id=>app.querySelector('#'+id);
+ const currencies=[{"code": "USD", "name": "ดอลลาร์สหรัฐ", "country": "🇺🇸 สหรัฐอเมริกา", "rate": "35.00", "digits": 2}, {"code": "EUR", "name": "ยูโร", "country": "🇪🇺 สหภาพยุโรป", "rate": "38.00", "digits": 2}, {"code": "GBP", "name": "ปอนด์สเตอร์ลิง", "country": "🇬🇧 สหราชอาณาจักร", "rate": "45.00", "digits": 2}, {"code": "JPY", "name": "เยน", "country": "🇯🇵 ญี่ปุ่น", "rate": "0.2400", "digits": 0}, {"code": "CNY", "name": "หยวน", "country": "🇨🇳 จีน", "rate": "4.8000", "digits": 2}, {"code": "SGD", "name": "ดอลลาร์สิงคโปร์", "country": "🇸🇬 สิงคโปร์", "rate": "26.00", "digits": 2}, {"code": "KRW", "name": "วอน", "country": "🇰🇷 เกาหลีใต้", "rate": "0.0260", "digits": 0}, {"code": "AUD", "name": "ดอลลาร์ออสเตรเลีย", "country": "🇦🇺 ออสเตรเลีย", "rate": "23.00", "digits": 2}];
+ const dialog=q('fx-dialog'),input=q('fx-input'),submit=q('fx-submit');
+ const format=(value,digits)=>Number(value).toLocaleString('en-US',{minimumFractionDigits:digits,maximumFractionDigits:digits});
+ function render(rows){
+  q('fx-rows').replaceChildren();
+  rows.forEach(row=>{
+   const tr=document.createElement('tr');
+   const texts=[row.code+' · '+row.name,row.country,format(row.rate,4),row.amount===undefined?'—':format(row.amount,row.digits)+' '+row.code];
+   texts.forEach((text,i)=>{const td=document.createElement('td');td.textContent=text;td.className=i===0?'code':i===2?'num':i===3?'num result':'';tr.appendChild(td)});
+   q('fx-rows').appendChild(tr);
+  });
+ }
+ render(currencies);
+ q('fx-open').onclick=()=>{q('fx-error').textContent='';dialog.showModal();input.focus();input.select()};
+ q('fx-cancel').onclick=()=>dialog.close();
+ dialog.addEventListener('cancel',event=>{if(submit.disabled)event.preventDefault()});
+ q('fx-form').onsubmit=async event=>{
+  event.preventDefault();q('fx-error').textContent='';
+  if(!input.value.trim() || !Number.isFinite(Number(input.value)) || Number(input.value)<0 || Number(input.value)>1e9 || input.validity.stepMismatch){
+   q('fx-error').textContent='กรอกจำนวน 0–1,000,000,000 บาท ทศนิยมไม่เกิน 2 ตำแหน่ง';return;
+  }
+  submit.disabled=true;input.disabled=true;q('fx-cancel').disabled=true;submit.textContent='กำลังคำนวณ…';
+  try{
+   const reply=await google.colab.kernel.invokeFunction('exchange.convert.1c845e48cce74aeca8dd80d10c6ddcd1',[input.value],{});
+   const payload=reply.data['application/json'];
+   if(!payload || !payload.ok)throw new Error(payload?.error || 'ไม่ได้รับผลคำนวณ');
+   render(payload.rows);q('fx-thb').textContent=format(payload.thb,2)+' บาท';
+   q('fx-status').textContent='คำนวณสำเร็จ · '+payload.calculated_at+' · ใช้อัตราสมมติ';
+   q('fx-open').textContent='เปลี่ยนจำนวนเงินบาท';dialog.close();
+  }catch(error){q('fx-error').textContent='คำนวณไม่สำเร็จ: '+error.message+' หาก Runtime หลุด ให้เชื่อมต่อแล้วรันเซลล์ UI ใหม่';}
+  finally{submit.disabled=false;input.disabled=false;q('fx-cancel').disabled=false;submit.textContent='แปลงค่าเงิน';}
+ };
+ if(typeof google!=='undefined' && google.colab?.output?.setIframeHeight)google.colab.output.setIframeHeight(820,true);
+})();
+</script>
+</div>
